@@ -1,3 +1,5 @@
+import SlimSelect from 'slim-select';
+import { Notify } from 'notiflix';
 import { fetchBreeds, fetchCatByBreed } from './cat-api';
 
 const refs = {
@@ -8,16 +10,17 @@ const refs = {
 };
 let breedsArr = [];
 
-showElem(refs.loaderNotif);
-
 fetchBreeds()
   .then(breeds => {
     showElem(refs.breedSelect);
     renderBreedsOptions(breeds);
+    new SlimSelect({
+      select: refs.breedSelect,
+    });
     breedsArr = [...breeds];
   })
   .catch(err => {
-    showElem(refs.errorNotif);
+    showError(refs.errorNotif);
   })
   .finally(() => {
     hideElem(refs.loaderNotif);
@@ -39,7 +42,7 @@ function onBreedSelect() {
       renderCat(breed, cat[0].url);
     })
     .catch(err => {
-      showElem(refs.errorNotif);
+      showError(refs.errorNotif);
     })
     .finally(() => {
       hideElem(refs.loaderNotif);
@@ -67,4 +70,11 @@ function showElem(elem) {
 
 function hideElem(elem) {
   elem.classList.add('hidden');
+}
+
+function showError(elem) {
+  Notify.failure('Oops! Something went wrong! Try reloading the page!');
+  setTimeout(() => {
+    showElem(elem);
+  }, 3000);
 }
