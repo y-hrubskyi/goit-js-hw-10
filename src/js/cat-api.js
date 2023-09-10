@@ -6,7 +6,8 @@ function fetchBreeds() {
 }
 
 function fetchCatByBreed(breedId) {
-  const url = `${BASE_URL}/images/search?breed_ids=${breedId}`;
+  const url = `${BASE_URL}/images/search?
+  breed_ids=${breedId}`;
   return fetchUrl(url);
 }
 

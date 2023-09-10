@@ -12,15 +12,15 @@ showElem(refs.loaderNotif);
 
 fetchBreeds()
   .then(breeds => {
-    hideElem(refs.loaderNotif);
     showElem(refs.breedSelect);
-
     renderBreedsOptions(breeds);
     breedsArr = [...breeds];
   })
   .catch(err => {
-    hideElem(refs.loaderNotif);
     showElem(refs.errorNotif);
+  })
+  .finally(() => {
+    hideElem(refs.loaderNotif);
   });
 
 refs.breedSelect.addEventListener('change', onBreedSelect);
@@ -29,20 +29,20 @@ function onBreedSelect() {
   const breedId = refs.breedSelect.value;
   const breed = breedsArr.find(breed => breed.id === breedId);
 
+  hideElem(refs.errorNotif);
   hideElem(refs.catInfo);
   showElem(refs.loaderNotif);
 
   fetchCatByBreed(breedId)
     .then(cat => {
-      hideElem(refs.loaderNotif);
       showElem(refs.catInfo);
-
       renderCat(breed, cat[0].url);
     })
     .catch(err => {
-      hideElem(refs.loaderNotif);
-
       showElem(refs.errorNotif);
+    })
+    .finally(() => {
+      hideElem(refs.loaderNotif);
     });
 }
 
@@ -62,9 +62,9 @@ function renderCat(breed, imgUrl) {
 }
 
 function showElem(elem) {
-  elem.classList.remove('hide');
+  elem.classList.remove('hidden');
 }
 
 function hideElem(elem) {
-  elem.classList.add('hide');
+  elem.classList.add('hidden');
 }
