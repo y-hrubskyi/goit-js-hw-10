@@ -1,6 +1,6 @@
 import SlimSelect from 'slim-select';
 import { Notify } from 'notiflix';
-import { fetchBreeds, fetchCatByBreed } from './cat-api';
+import { TheCatApiService } from './thecatapi-service';
 
 const refs = {
   breedSelect: document.querySelector('.breed-select'),
@@ -8,19 +8,21 @@ const refs = {
   loaderNotif: document.querySelector('p.loader'),
   errorNotif: document.querySelector('p.error'),
 };
-let breedsArr = [];
 
-fetchBreeds()
+const theCatApiService = new TheCatApiService();
+
+theCatApiService
+  .fetchBreeds()
   .then(breeds => {
     showElem(refs.breedSelect);
-    renderBreedsOptions(breeds);
+    createBreedsOptions(breeds);
     new SlimSelect({
       select: refs.breedSelect,
     });
-    breedsArr = [...breeds];
+    theCatApiService.breedsArr = [...breeds];
   })
   .catch(err => {
-    showError(refs.errorNotif);
+    showError();
   })
   .finally(() => {
     hideElem(refs.loaderNotif);
@@ -30,26 +32,26 @@ refs.breedSelect.addEventListener('change', onBreedSelect);
 
 function onBreedSelect() {
   const breedId = refs.breedSelect.value;
-  const breed = breedsArr.find(breed => breed.id === breedId);
+  const breed = theCatApiService.breedsArr.find(breed => breed.id === breedId);
 
-  hideElem(refs.errorNotif);
   hideElem(refs.catInfo);
   showElem(refs.loaderNotif);
 
-  fetchCatByBreed(breedId)
+  theCatApiService
+    .fetchCatByBreed(breedId)
     .then(cat => {
       showElem(refs.catInfo);
       renderCat(breed, cat[0].url);
     })
     .catch(err => {
-      showError(refs.errorNotif);
+      showError();
     })
     .finally(() => {
       hideElem(refs.loaderNotif);
     });
 }
 
-function renderBreedsOptions(breeds) {
+function createBreedsOptions(breeds) {
   const markup = breeds
     .map(({ id, name }) => `<option value="${id}">${name}</option>`)
     .join('');
@@ -74,7 +76,4 @@ function hideElem(elem) {
 
 function showError(elem) {
   Notify.failure('Oops! Something went wrong! Try reloading the page!');
-  setTimeout(() => {
-    showElem(elem);
-  }, 3000);
 }
